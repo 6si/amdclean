@@ -28,16 +28,9 @@
     "sourcemap-to-ast": "0.0.2"
   },
   "devDependencies": {
-    "glob-parent": "^6.0.2",
-    "glob-watcher": "5.0.5",
     "grunt": "^1.5.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.1.0",
-    "gulp": "^4.0.2",
-    "gulp-insert": "~0.3.0",
-    "gulp-jshint": "^2.1.0",
-    "gulp-rename": "~0.2.1",
-    "gulp-uglify": "^3.0.2",
     "jasmine": "^3.99.0",
     "requirejs": "~2.1.11"
   },

@@ -6,6 +6,7 @@ const Jasmine = require('jasmine');
 module.exports = function (grunt) {
     function getHeaderText() {
         let packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8')),
+        licenseText = '\n\n/*' + fs.readFileSync('./LICENSE.txt', 'utf8') + '\n*/\n\n',
             currentDate = (function () {
                 var today = new Date(),
                     dd = today.getDate(),
@@ -30,8 +31,9 @@ module.exports = function (grunt) {
                 return yyyy;
             }());
         return '/*! amdclean - v' + packageJson.version + ' - ' + currentDate +
-            '\n* http://github.com/6si/amdclean' +
-            '\n* Copyright (c) ' + currentYear + ' Greg Franko */\n';
+            '\n* Modified work: https://github.com/6si/amdclean' +
+            '\n* Original work: https://github.com/gfranko/amdclean' +
+            '\n* Original Copyright (c) ' + currentYear + ' Greg Franko */\n' + licenseText;
     }
     const header = getHeaderText();
     // Project configuration.

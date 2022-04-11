@@ -1,6 +1,7 @@
 const requirejs = require('requirejs');
 const amdclean = require('./build/amdclean');
 const fs = require("fs");
+const Jasmine = require('jasmine');
 
 module.exports = function (grunt) {
     function getHeaderText() {
@@ -99,6 +100,20 @@ module.exports = function (grunt) {
     grunt.registerTask('lint', ['build', 'jshint:amdclean']);
 
 
+    grunt.registerTask('test', 'Runs Jasmine on the Spec File', function() {
+        const cb = this.async();
+        const jasmine = new Jasmine();
+        jasmine.loadConfig({
+            spec_dir: 'test/specs',
+            spec_files: [
+                'convert.js'
+            ]
+        });
+        jasmine.exitOnCompletion = false;
+        jasmine.execute().then((data)=>{
+            cb(data.overallStatus === "passed");
+        });
+    });
 
     grunt.registerMultiTask('requirejs', 'Uses RequireJS to optimize a file', function () {
         const target = this.target;

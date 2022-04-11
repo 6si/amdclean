@@ -1,0 +1,120 @@
+const requirejs = require('requirejs');
+const amdclean = require('./build/amdclean');
+const fs = require("fs");
+
+module.exports = function (grunt) {
+    function getHeaderText() {
+        let packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8')),
+            currentDate = (function () {
+                var today = new Date(),
+                    dd = today.getDate(),
+                    mm = today.getMonth() + 1,
+                    yyyy = today.getFullYear();
+    
+                if (dd < 10) {
+                    dd = '0' + dd
+                }
+    
+                if (mm < 10) {
+                    mm = '0' + mm
+                }
+    
+                today = yyyy + '-' + mm + '-' + dd;
+                return today;
+            }()),
+            currentYear = (function () {
+                var today = new Date(),
+                    yyyy = today.getFullYear();
+    
+                return yyyy;
+            }());
+        return '/*! amdclean - v' + packageJson.version + ' - ' + currentDate +
+            '\n* http://github.com/6si/amdclean' +
+            '\n* Copyright (c) ' + currentYear + ' Greg Franko */\n';
+    }
+    const header = getHeaderText();
+    // Project configuration.
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        uglify: {
+            options: {
+                banner: header,
+            },
+            build: {
+                src: 'src/amdclean.js',
+                dest: 'build/amdclean.min.js'
+            }
+        },
+        requirejs: {
+            "./build/amdclean.optimized.js": {
+                'findNestedDependencies': false,
+                'baseUrl': './src/modules/',
+                'optimize': 'none',
+                'paths': {
+                    'amdclean': 'index'
+                },
+                'include': ['amdclean'],
+            }
+        },
+        amdclean: {
+            "./build/amdclean.optimized.cleaned.js": {
+                'filePath': "./build/amdclean.optimized.js",
+                'transformAMDChecks': false,
+                'aggressiveOptimizations': true,
+                'ignoreModules': ['esprima', 'estraverse', 'escodegen', 'lodash', 'fs', 'sourcemap_to_ast'], // wtf? parsed name here?
+                'removeUseStricts': false,
+                'wrap': {
+                    // All of the third party dependencies are hoisted here
+                    // It's a hack, but it's not too painful
+                    'start': ';(function(esprima, estraverse, escodegen, _, sourcemapToAst) {\n',
+                    'end': '}(typeof esprima !== "undefined" ? esprima: null, typeof estraverse !== "undefined" ? estraverse: null, typeof escodegen !== "undefined" ? escodegen: null, typeof _ !== "undefined" ? _ : null, typeof sourcemapToAst !== "undefined" ? sourcemapToAst : null));'
+                },
+                'createAnonymousAMDModule': true
+            }
+        },
+        prepend: {
+            "./src/amdclean.js": {
+                header: getHeaderText,
+                src: "./build/amdclean.optimized.cleaned.js",
+            }
+        }
+    });
+
+    // Load the plugin that provides the "uglify" task.
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+
+    // Default task(s).
+    grunt.registerTask('default', ['requirejs', 'amdclean', 'prepend:./src/amdclean.js', 'uglify']);
+
+    grunt.registerMultiTask('requirejs', 'Uses RequireJS to optimize a file', function () {
+        const target = this.target;
+        const data = this.data;
+        const cb = this.async();
+        requirejs.optimize({
+            ...data,
+            out: target,
+            'onModuleBundleComplete': function (data) {
+                cb();
+            }
+        });
+    });
+
+    grunt.registerMultiTask('amdclean', "Uses AMDClean on a file", function () {
+        const target = this.target;
+        const data = this.data;
+        const code = amdclean.clean({
+            ...data,
+        });
+        fs.writeFileSync(target, code);
+    });
+    grunt.registerMultiTask('prepend', 'Prepends some text to a file', function() {
+        const target = this.target;
+        const data = this.data;
+        let header = data.header;
+        if(typeof header === "function") {
+            header = header();
+        }
+        const file = header + fs.readFileSync(data.src);
+        fs.writeFileSync(target, file);
+    })
+};

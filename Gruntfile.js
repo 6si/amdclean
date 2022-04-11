@@ -45,6 +45,15 @@ module.exports = function (grunt) {
                 dest: 'build/amdclean.min.js'
             }
         },
+        jshint: {
+            amdclean: {
+                options: {
+                  "loopfunc": true,
+                  "evil": true,
+                },
+                src: ['src/amdclean.js'],
+              },
+        },
         requirejs: {
             "./build/amdclean.optimized.js": {
                 'findNestedDependencies': false,
@@ -82,9 +91,14 @@ module.exports = function (grunt) {
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-uglify');
-
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     // Default task(s).
-    grunt.registerTask('default', ['requirejs', 'amdclean', 'prepend:./src/amdclean.js', 'uglify']);
+    grunt.registerTask('build', ['requirejs', 'amdclean', 'prepend:./src/amdclean.js']);
+    grunt.registerTask('default', ['build', 'jshint:amdclean', 'uglify']);
+    
+    grunt.registerTask('lint', ['build', 'jshint:amdclean']);
+
+
 
     grunt.registerMultiTask('requirejs', 'Uses RequireJS to optimize a file', function () {
         const target = this.target;

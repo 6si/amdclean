@@ -31,6 +31,7 @@
     "glob-parent": "^6.0.2",
     "glob-watcher": "5.0.5",
     "grunt": "^1.5.1",
+    "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-insert": "~0.3.0",

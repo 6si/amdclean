@@ -97,9 +97,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     // Default task(s).
     grunt.registerTask('build', ['requirejs', 'amdclean', 'prepend:./src/amdclean.js']);
-    grunt.registerTask('default', ['build', 'jshint:amdclean', 'uglify']);
+    grunt.registerTask('default', ['build', 'jshint:amdclean', 'test']);
     
     grunt.registerTask('lint', ['build', 'jshint:amdclean']);
+    grunt.registerTask('minify', ['build', 'jshint:amdclean', 'test', 'uglify']);
 
 
     grunt.registerTask('test', 'Runs Jasmine on the Spec File', function() {
